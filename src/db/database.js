@@ -1,25 +1,35 @@
 require("dotenv").config();
-const { Pool } = require("pg");
+const mysql = require("mysql2/promise");
 
-const pool = new Pool({
-  connectionString: process.env.DATABASE_URL,
-  ssl: process.env.DATABASE_URL && process.env.DATABASE_URL.includes("render.com")
-    ? { rejectUnauthorized: false }
-    : false
+const pool = mysql.createPool({
+  uri: process.env.DATABASE_URL,
+  waitForConnections: true,
+  connectionLimit: 10,
+  queueLimit: 0,
 });
 
-// Initialize table if it doesn't exist
-pool.query(`
-  CREATE TABLE IF NOT EXISTS contact (
-    id SERIAL PRIMARY KEY,
-    phoneNumber VARCHAR(255),
-    email VARCHAR(255),
-    linkedId INTEGER,
-    linkPrecedence VARCHAR(10) NOT NULL CHECK (linkPrecedence IN ('primary', 'secondary')),
-    createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    deletedAt TIMESTAMP
-  );
-`).catch(err => console.error("Error creating table:", err));
+async function initDB() {
+  try {
+    const connection = await pool.getConnection();
+    await connection.query(`
+      CREATE TABLE IF NOT EXISTS contact (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        phoneNumber VARCHAR(255),
+        email VARCHAR(255),
+        linkedId INT DEFAULT NULL,
+        linkPrecedence ENUM('primary', 'secondary') NOT NULL,
+        createdAt DATETIME DEFAULT CURRENT_TIMESTAMP,
+        updatedAt DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+        deletedAt DATETIME DEFAULT NULL
+      );
+    `);
+    connection.release();
+    console.log("Database table initialized.");
+  } catch (err) {
+    console.error("Error creating table:", err);
+  }
+}
+
+initDB();
 
 module.exports = pool;

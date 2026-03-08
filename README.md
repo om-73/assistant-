@@ -42,7 +42,7 @@ Returns:
    npm start
    ```
 
-*Note: This version uses PostgreSQL (`pg`). To securely connect to your database on Render, generate a free PostgreSQL instance, copy its 'Internal Database URL' or 'External Database URL', and paste it as the `DATABASE_URL` environment variable for your Web Service.*
+*Note: This version uses MySQL (`mysql2`). To securely connect to your database on Render, generate a free MySQL instance (or use an add-on like PlanetScale/Aiven), copy the Database URL, and paste it as the `DATABASE_URL` environment variable for your Web Service.*
 
 ## Live Deployment URL
 *(Add your Render.com URL here)*

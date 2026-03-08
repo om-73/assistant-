@@ -1,18 +1,25 @@
-const Database = require("better-sqlite3");
+require("dotenv").config();
+const { Pool } = require("pg");
 
-const db = new Database("contacts.db");
+const pool = new Pool({
+  connectionString: process.env.DATABASE_URL,
+  ssl: process.env.DATABASE_URL && process.env.DATABASE_URL.includes("render.com")
+    ? { rejectUnauthorized: false }
+    : false
+});
 
-db.exec(`
-  CREATE TABLE IF NOT EXISTS Contact (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    phoneNumber TEXT,
-    email TEXT,
+// Initialize table if it doesn't exist
+pool.query(`
+  CREATE TABLE IF NOT EXISTS contact (
+    id SERIAL PRIMARY KEY,
+    phoneNumber VARCHAR(255),
+    email VARCHAR(255),
     linkedId INTEGER,
-    linkPrecedence TEXT NOT NULL CHECK(linkPrecedence IN ('primary', 'secondary')),
-    createdAt DATETIME DEFAULT CURRENT_TIMESTAMP,
-    updatedAt DATETIME DEFAULT CURRENT_TIMESTAMP,
-    deletedAt DATETIME
-  )
-`);
+    linkPrecedence VARCHAR(10) NOT NULL CHECK (linkPrecedence IN ('primary', 'secondary')),
+    createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    deletedAt TIMESTAMP
+  );
+`).catch(err => console.error("Error creating table:", err));
 
-module.exports = db;
+module.exports = pool;

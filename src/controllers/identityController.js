@@ -3,7 +3,7 @@ const identityService = require("../services/identityService");
 async function identify(req, res) {
   const { email, phoneNumber } = req.body;
 
-  const mail  = email       || null;
+  const mail = email || null;
   const phone = phoneNumber != null ? String(phoneNumber) : null;
 
   if (!mail && !phone) {
@@ -11,7 +11,7 @@ async function identify(req, res) {
   }
 
   try {
-    const contact = identityService.identify(mail, phone);
+    const contact = await identityService.identify(mail, phone);
     return res.status(200).json({ contact });
   } catch (err) {
     console.error("Identity error:", err);

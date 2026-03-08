@@ -42,7 +42,7 @@ Returns:
    npm start
    ```
 
-*Note: This version uses `better-sqlite3` which requires a local filesystem to persist `contacts.db`. When deploying to Render.com, you should attach a persistent Disk to your web service to retain the database file, or switch the DB adapter to a hosted PostgreSQL/MySQL instance.*
+*Note: This version uses PostgreSQL (`pg`). To securely connect to your database on Render, generate a free PostgreSQL instance, copy its 'Internal Database URL' or 'External Database URL', and paste it as the `DATABASE_URL` environment variable for your Web Service.*
 
 ## Live Deployment URL
 *(Add your Render.com URL here)*

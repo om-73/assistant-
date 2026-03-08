@@ -37,11 +37,12 @@ Returns:
    npm install
    ```
 
-2. Start the server:
+2. Start the server (runs on port 3000):
    ```bash
    npm start
    ```
-   *The server runs on port 3000 locally and uses `better-sqlite3`.*
 
-## Live URL
-*(Pending Render Deployment)*
+*Note: This version uses `better-sqlite3` which requires a local filesystem to persist `contacts.db`. When deploying to Render.com, you should attach a persistent Disk to your web service to retain the database file, or switch the DB adapter to a hosted PostgreSQL/MySQL instance.*
+
+## Live Deployment URL
+*(Add your Render.com URL here)*

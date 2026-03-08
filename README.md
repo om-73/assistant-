@@ -42,7 +42,7 @@ Returns:
    npm start
    ```
 
-*Note: This version uses MySQL (`mysql2`). To securely connect to your database on Render, generate a free MySQL instance (or use an add-on like PlanetScale/Aiven), copy the Database URL, and paste it as the `DATABASE_URL` environment variable for your Web Service.*
+*Note: If you plan to deploy this on Render's Free tier, the SQLite `contacts.db` file will be erased when the instance sleeps. To prevent this, you can switch the code to use standard MySQL or PostgreSQL and provide a `DATABASE_URL` environment variable during deployment.*
 
 ## Live Deployment URL
 *(Add your Render.com URL here)*

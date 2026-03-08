@@ -1,6 +1,6 @@
 const repo = require("../db/contactRepository");
 
-async function getAllClusters(matched) {
+function getAllClusters(matched) {
   const rootIds = new Set();
   for (const c of matched) {
     rootIds.add(c.linkPrecedence === "primary" ? c.id : c.linkedId);
@@ -10,7 +10,7 @@ async function getAllClusters(matched) {
   const allContacts = [];
 
   for (const rid of rootIds) {
-    const cluster = await repo.findClusterByRootId(rid);
+    const cluster = repo.findClusterByRootId(rid);
     for (const c of cluster) {
       if (!seen.has(c.id)) {
         seen.add(c.id);
@@ -22,7 +22,7 @@ async function getAllClusters(matched) {
   return allContacts;
 }
 
-async function resolvePrimary(allContacts) {
+function resolvePrimary(allContacts) {
   const primaries = allContacts
     .filter((c) => c.linkPrecedence === "primary")
     .sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
@@ -31,7 +31,7 @@ async function resolvePrimary(allContacts) {
 
   // Demote any newer primaries
   for (const p of primaries.slice(1)) {
-    await repo.demoteToSecondary(p.id, primary.id);
+    repo.demoteToSecondary(p.id, primary.id);
     p.linkedId = primary.id;
     p.linkPrecedence = "secondary";
   }
@@ -66,12 +66,12 @@ function buildResponse(primary, allContacts) {
   };
 }
 
-async function identify(email, phone) {
-  const matched = await repo.findByEmailOrPhone(email, phone);
+function identify(email, phone) {
+  const matched = repo.findByEmailOrPhone(email, phone);
 
   // No existing contact → create new primary
   if (matched.length === 0) {
-    const id = await repo.createPrimary(email, phone);
+    const id = repo.createPrimary(email, phone);
     return {
       primaryContatctId: id,
       emails: email ? [email] : [],
@@ -81,19 +81,19 @@ async function identify(email, phone) {
   }
 
   // Gather all related contacts across clusters
-  let allContacts = await getAllClusters(matched);
+  let allContacts = getAllClusters(matched);
 
   // Find (and enforce) a single primary
-  const primary = await resolvePrimary(allContacts);
+  const primary = resolvePrimary(allContacts);
 
   // Check if incoming info introduces anything new
   const emailKnown = !email || allContacts.some((c) => c.email === email);
   const phoneKnown = !phone || allContacts.some((c) => c.phoneNumber === phone);
 
   if (!emailKnown || !phoneKnown) {
-    await repo.createSecondary(email, phone, primary.id);
+    repo.createSecondary(email, phone, primary.id);
     // Reload cluster with the new secondary included
-    allContacts = await repo.findClusterByRootId(primary.id);
+    allContacts = repo.findClusterByRootId(primary.id);
   }
 
   return buildResponse(primary, allContacts);

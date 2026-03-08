@@ -11,7 +11,7 @@ async function identify(req, res) {
   }
 
   try {
-    const contact = await identityService.identify(mail, phone);
+    const contact = identityService.identify(mail, phone);
     return res.status(200).json({ contact });
   } catch (err) {
     console.error("Identity error:", err);
